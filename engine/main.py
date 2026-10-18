@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Union
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -54,10 +54,23 @@ class FixedCharge(BaseModel):
     rate: float
 
 
+class FixedBand(BaseModel):
+    from_kw: float
+    to_kw: Optional[float] = None
+    rate_per_kw_per_month: float
+
+
 class Surcharge(BaseModel):
     name: str
     type: str
     value: float
+    effective_date: Optional[str] = None
+
+
+class FppasMonth(BaseModel):
+    month: str
+    percent: float
+    source_url: str = ""
 
 
 class Tariff(BaseModel):
@@ -65,11 +78,12 @@ class Tariff(BaseModel):
     category: str
     effective_date: str
     energy_slabs: List[Slab]
-    fixed_charge: FixedCharge
+    fixed_charge: Union[List[FixedBand], FixedCharge]
     surcharges: List[Surcharge] = []
+    fppas_by_month: List[FppasMonth] = []
+    uncertainties: List[str] = []
     source_url: str = ""
     retrieved_at: str = ""
-
 
 class AuditRequest(BaseModel):
     bill: Bill

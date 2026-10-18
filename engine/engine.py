@@ -18,6 +18,16 @@ def expected_energy(units, slabs):
         if units_in_slab > 0:
             total += units_in_slab * D(slab["rate_per_unit"])
     return total
+def expected_fixed(load_kw, fixed_charge):
+    """Whole sanctioned load x the rate of the kW band it falls in."""
+    if isinstance(fixed_charge, dict):  # old single-rate shape
+        return load_kw * D(fixed_charge["rate"])
+    for band in fixed_charge:
+        low = D(band["from_kw"])
+        high = D(band["to_kw"]) if band.get("to_kw") is not None else None
+        if load_kw > low and (high is None or load_kw <= high):
+            return load_kw * D(band["rate_per_kw_per_month"])
+    return None
 
 
 def make_check(item, billed, expected, note_ok, note_warn):
@@ -75,18 +85,22 @@ def audit(bill, tariff):
                 "Does not match the tariff slabs.",
             ))
 
-    # 3. Fixed charge (assumes a 1-month billing period)
+        # 3. Fixed charge (assumes a 1-month billing period)
+    exp_fixed = None
     if load_kw is None:
         uncertainties.append("Sanctioned load (kW) is missing, so the fixed charge check was skipped.")
     elif billed_fixed is None:
         uncertainties.append("Billed fixed charge is missing, so that check was skipped.")
     else:
-        exp_fixed = D(load_kw) * D(tariff["fixed_charge"]["rate"])
-        checks.append(make_check(
-            "Fixed charge", D(billed_fixed), exp_fixed,
-            "Matches the tariff.",
-            "Does not match the tariff.",
-        ))
+        exp_fixed = expected_fixed(D(load_kw), tariff["fixed_charge"])
+        if exp_fixed is None:
+            uncertainties.append("No fixed-charge band matches the sanctioned load, so that check was skipped.")
+        else:
+            checks.append(make_check(
+                "Fixed charge", D(billed_fixed), exp_fixed,
+                "Matches the tariff.",
+                "Does not match the tariff.",
+            ))
 
     # 4. Surcharges
     if exp_energy is not None:
@@ -94,15 +108,23 @@ def audit(bill, tariff):
             uncertainties.append("Billed surcharges are missing, so that check was skipped.")
         else:
             exp_surcharges = Decimal("0")
+            can_compute = True
             for s in tariff.get("surcharges", []):
                 if s["type"] == "percent_of_energy":
                     exp_surcharges += exp_energy * D(s["value"]) / Decimal("100")
+                elif s["type"] == "percent_of_energy_plus_fixed" and exp_fixed is not None:
+                    exp_surcharges += (exp_energy + exp_fixed) * D(s["value"]) / Decimal("100")
                 else:
-                    uncertainties.append(f"Unknown surcharge type: {s['type']}")
-            checks.append(make_check(
-                "Surcharges", D(billed_surcharges), exp_surcharges,
-                "Matches the tariff.",
-                "Does not match the tariff.",
-            ))
+                    can_compute = False
+                    uncertainties.append(f"Could not compute surcharge '{s['name']}', so the surcharge check was skipped.")
+            if can_compute:
+                checks.append(make_check(
+                    "Surcharges", D(billed_surcharges), exp_surcharges,
+                    "Matches the tariff.",
+                    "Does not match the tariff.",
+                ))
+
+    # Pass through what the tariff retrieval could not confirm
+    uncertainties += tariff.get("uncertainties", [])
 
     return {"checks": checks, "uncertainties": uncertainties}
