@@ -1,0 +1,16 @@
+{
+  "discom": "BRPL",
+  "category": "Domestic",
+  "effective_date": "2025-04-01",
+  "energy_slabs": [
+    {"from_units": 0, "to_units": 200, "rate_per_unit": 3},
+    {"from_units": 200, "to_units": 400, "rate_per_unit": 4.5},
+    {"from_units": 400, "to_units": 800, "rate_per_unit": 6.5}
+  ],
+  "fixed_charge": {"basis": "per_kw_per_month", "rate": 20},
+  "surcharges": [
+    {"name": "Pension Trust Surcharge", "type": "percent_of_energy", "value": 10}
+  ],
+  "source_url": "https://example.com/placeholder-tariff",
+  "retrieved_at": "2026-10-18"
+}

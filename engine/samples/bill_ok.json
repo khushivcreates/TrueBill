@@ -1,0 +1,10 @@
+{
+  "discom": "BRPL",
+  "category": "Domestic",
+  "consumer_name": "Test Consumer",
+  "billing_period": {"start": "2026-09-01", "end": "2026-09-30"},
+  "units_consumed": 250,
+  "sanctioned_load_kw": 2,
+  "charges": {"energy": 825, "fixed": 40, "surcharges": 82.5, "other": 0, "total": 947.5},
+  "missing_fields": []
+}

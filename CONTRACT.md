@@ -17,7 +17,8 @@ Rule: if code and this file disagree, this file is right. Change it only after b
   "category": "",
   "consumer_name": "",
   "billing_period": {"start": "YYYY-MM-DD", "end": "YYYY-MM-DD"},
-  "units_consumed": 0,
+    "units_consumed": 0,
+  "sanctioned_load_kw": 0,
   "charges": {"energy": 0, "fixed": 0, "surcharges": 0, "other": 0, "total": 0},
   "missing_fields": []
 }
