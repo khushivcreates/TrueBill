@@ -26,7 +26,7 @@ Rules engine + audit API + plain-language explanation for TrueBill.
 
 ```bash
 
-pip install fastapi uvicorn pydantic pytest google-genai python-dotenv
+pip install -r requirements.txt
 
 ```
 
