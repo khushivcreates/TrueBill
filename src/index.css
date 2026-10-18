@@ -1,0 +1,57 @@
+@import "tailwindcss";
+
+@theme {
+  --font-headline: "Bricolage Grotesque", "Space Grotesk", sans-serif;
+  --font-mono: "IBM Plex Mono", monospace;
+  --font-sans: "Plus Jakarta Sans", sans-serif;
+  --color-navy-bg: #0B1822;
+  --color-cream-card: #EFEAE0;
+  --color-amber-accent: #F0A818;
+  --color-verified-green: #12A06A;
+  --color-warning-red: #E5533D;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: #0B1822;
+  color: #EFEAE0;
+  min-height: 100vh;
+}
+
+/* Stamp Slam Animation */
+@keyframes stampSlam {
+  0% {
+    opacity: 0;
+    transform: scale(2.6) rotate(-22deg);
+  }
+  60% {
+    opacity: 0.95;
+    transform: scale(0.92) rotate(-9deg);
+  }
+  80% {
+    transform: scale(1.05) rotate(-13deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(-11deg);
+  }
+}
+
+.animate-stamp {
+  animation: stampSlam 0.55s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.4s ease-out forwards;
+}
