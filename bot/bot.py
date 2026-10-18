@@ -8,6 +8,7 @@ Secrets come from the .env file at the repo root; no key is ever printed.
 
 from __future__ import annotations
 
+import asyncio
 import logging
 import os
 from datetime import datetime, timezone
@@ -24,6 +25,7 @@ from telegram.ext import (
     filters,
 )
 
+from bill_extractor import SUPPORTED_EXTENSIONS
 from processor import is_supported, process_bill
 
 # Repo root: <TrueBill-repo>/bot/this_file.py -> <TrueBill-repo>/.env
@@ -142,12 +144,15 @@ async def handle_bill(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
         label = "photo"
     else:
         document = message.document
-        if not document.file_name or not document.file_name.lower().endswith(".pdf"):
-            await message.reply_text("Please send a photo or a PDF of your bill. 📸📄")
+        suffix = Path(document.file_name or "").suffix.lower()
+        if suffix not in SUPPORTED_EXTENSIONS:
+            await message.reply_text(
+                "Please send a JPG, PNG, or PDF of your bill. 📸📄"
+            )
             return
         file_id = document.file_id
-        extension = ".pdf"
-        label = "PDF"
+        extension = suffix
+        label = f"file ({suffix})"
 
     await message.chat.send_action(ChatAction.TYPING)
     log.info("Received a %s, downloading...", label)
@@ -164,7 +169,17 @@ async def handle_bill(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
             return
 
         await message.chat.send_action(ChatAction.TYPING)
-        audit = process_bill(destination)
+        # process_bill blocks on an HTTP call for up to 60s: run it in a
+        # worker thread so the bot stays responsive to other chats.
+        audit = await asyncio.to_thread(process_bill, destination)
+
+        error = audit.get("error")
+        if error:
+            # Friendly failure message from the pipeline (bill unreadable,
+            # tariff cache missing, audit service down, ...).
+            await message.reply_text(f"😅 {error}")
+            return
+
         await send_long_message(update, context, format_audit(audit))
     except Exception:
         log.exception("Failed to process the bill")
@@ -195,7 +210,7 @@ def main() -> None:
 
     application.add_handler(CommandHandler(["start", "help"], start))
     application.add_handler(
-        MessageHandler(filters.PHOTO | filters.Document.PDF, handle_bill)
+        MessageHandler(filters.PHOTO | filters.Document.ALL, handle_bill)
     )
     application.add_handler(MessageHandler(~filters.COMMAND, handle_other))
 
