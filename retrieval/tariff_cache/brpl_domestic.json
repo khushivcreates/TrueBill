@@ -1,0 +1,38 @@
+{
+  "discom": "BRPL",
+  "category": "Domestic",
+  "effective_date": "2021-10-01",
+  "energy_slabs": [
+    {"from_units": 0, "to_units": 200, "rate_per_unit": 3.0},
+    {"from_units": 200, "to_units": 400, "rate_per_unit": 4.5},
+    {"from_units": 400, "to_units": 800, "rate_per_unit": 6.5},
+    {"from_units": 800, "to_units": 1200, "rate_per_unit": 7.0},
+    {"from_units": 1200, "to_units": null, "rate_per_unit": 8.0}
+  ],
+  "fixed_charge": [
+    {"from_kw": 0, "to_kw": 2, "rate_per_kw_per_month": 20},
+    {"from_kw": 2, "to_kw": 5, "rate_per_kw_per_month": 50},
+    {"from_kw": 5, "to_kw": 15, "rate_per_kw_per_month": 100},
+    {"from_kw": 15, "to_kw": 25, "rate_per_kw_per_month": 200},
+    {"from_kw": 25, "to_kw": null, "rate_per_kw_per_month": 250}
+  ],
+  "surcharges": [
+    {"name": "Deficit Recovery Surcharge", "type": "percent_of_energy_plus_fixed", "value": 8, "effective_date": "2021-10-01"},
+    {"name": "Pension Trust Surcharge", "type": "percent_of_energy_plus_fixed", "value": 7, "effective_date": "2021-10-01"}
+  ],
+  "fppas_by_month": [
+    {"month": "2026-06", "percent": 10.0, "source_url": "https://www.bsesdelhi.com/web/brpl/fuel-power-purchase-adjustment-charges"}
+  ],
+  "source_url": "https://www.bsesdelhi.com/documents/55701/1983587124/Tariff_Schedule_2021_22.pdf/15e05b1e-4bec-9edf-a386-0c7a5946e6db?t=1706784615465",
+  "other_sources": [
+    {"component": "effective_date", "url": "https://www.derc.gov.in/sites/default/files/Press%20Release%202022%20Eng%2030.09.2021.pdf"},
+    {"component": "fppas", "url": "https://www.bsesdelhi.com/web/brpl/fuel-power-purchase-adjustment-charges"}
+  ],
+  "uncertainties": [
+    "Deficit recovery (8%) and pension trust (7%) percentages were not confirmed in the fetched schedule text; they come from the DERC FY2021-22 schedule as reviewed manually, and an older FY2020-21 document showed 5% for pension trust. Confirm against the bill.",
+    "Surcharge-specific effective dates are not separately stated; 2021-10-01 is the effective date of the overall tariff schedule.",
+    "Fixed charge is applied to the whole sanctioned load at the band rate (to be confirmed on a real bill).",
+    "No verified official FPPAS rate found for 2026-05, 2026-07, 2026-08, 2026-09, 2026-10."
+  ],
+  "retrieved_at": "2026-10-18T13:56:11Z"
+}

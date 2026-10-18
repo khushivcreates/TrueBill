@@ -1,0 +1,3 @@
+tinyfish
+google-genai
+python-dotenv

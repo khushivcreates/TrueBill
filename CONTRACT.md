@@ -37,7 +37,9 @@ Rule: if code and this file disagree, this file is right. Change it only after b
   "fixed_charge": {"basis": "per_kw_per_month", "rate": 0},
   "surcharges": [{"name": "", "type": "percent_of_energy", "value": 0}],
   "source_url": "",
-  "retrieved_at": ""
+  "retrieved_at": "",
+  "fppas_by_month": [{"month": "YYYY-MM", "rate_percent": 0, "effective_date": "YYYY-MM-DD", "source_url": ""}],
+  "uncertainties": []
 }
 ```
 

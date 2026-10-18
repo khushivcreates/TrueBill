@@ -6,3 +6,11 @@ coverage/
 *.log
 .env*
 !.env.example
+# Python
+__pycache__/
+*.pyc
+venv/
+.venv/
+
+# Private bills and test uploads
+sample_bills/
