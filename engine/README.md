@@ -88,3 +88,11 @@ pytest
 
 The engine never guesses. If a field is missing, that check is skipped and listed under `uncertainties`. If the bill's discom or category does not match the tariff, or no tariff is provided, no checks run and an uncertainty is returned.
 
+
+
+
+## Known limits
+
+- Bills whose billing period is not 28 to 31 days are not audited. Discoms prorate slabs and fixed charges for those, and the exact rule is not built in yet. The API returns an uncertainty instead.
+- FPPA is not checked yet.
+- The fixed charge check assumes a one-month period.

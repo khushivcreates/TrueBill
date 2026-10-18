@@ -55,3 +55,11 @@ def test_wrong_discom_returns_only_uncertainty():
     result = audit(bill, load("tariff_sample.json"))
     assert result["checks"] == []
     assert len(result["uncertainties"]) == 1
+
+
+def test_long_billing_period_is_not_audited():
+    bill = load("bill_ok.json")
+    bill["billing_period"] = {"start": "2026-08-01", "end": "2026-09-01"}  # 32 days
+    result = audit(bill, load("tariff_sample.json"))
+    assert result["checks"] == []
+    assert "32 days" in result["uncertainties"][0]

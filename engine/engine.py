@@ -1,3 +1,4 @@
+from datetime import date
 from decimal import Decimal
 
 TOLERANCE = Decimal("1")  # allow 1 rupee difference
@@ -18,6 +19,8 @@ def expected_energy(units, slabs):
         if units_in_slab > 0:
             total += units_in_slab * D(slab["rate_per_unit"])
     return total
+
+
 def expected_fixed(load_kw, fixed_charge):
     """Whole sanctioned load x the rate of the kW band it falls in."""
     if isinstance(fixed_charge, dict):  # old single-rate shape
@@ -70,6 +73,19 @@ def audit(bill, tariff):
     billed_fixed = get("fixed", charges.get("fixed"))
     billed_surcharges = get("surcharges", charges.get("surcharges"))
 
+    # Bills longer or shorter than a normal month are prorated by the discom.
+    # We don't know the exact rule, so we refuse to guess.
+    period = bill.get("billing_period")
+    if period and period.get("start") and period.get("end"):
+        days = (date.fromisoformat(period["end"]) - date.fromisoformat(period["start"])).days + 1
+        if days < 28 or days > 31:
+            return {
+                "checks": [],
+                "uncertainties": [
+                    f"The billing period is {days} days. Discoms prorate slabs and fixed charges for such periods and the exact rule is not yet built in, so no charges were checked."
+                ] + tariff.get("uncertainties", []),
+            }
+
     # 2. Energy charge
     exp_energy = None
     if units is None:
@@ -85,7 +101,7 @@ def audit(bill, tariff):
                 "Does not match the tariff slabs.",
             ))
 
-        # 3. Fixed charge (assumes a 1-month billing period)
+    # 3. Fixed charge (assumes a 1-month billing period)
     exp_fixed = None
     if load_kw is None:
         uncertainties.append("Sanctioned load (kW) is missing, so the fixed charge check was skipped.")
