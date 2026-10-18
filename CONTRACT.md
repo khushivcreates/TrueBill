@@ -13,14 +13,17 @@ Rule: if code and this file disagree, this file is right. Change it only after b
 ## 1. Bill JSON (Khushi's extraction produces it)
 ```json
 {
-  "discom": "",
-  "category": "",
-  "consumer_name": "",
-  "billing_period": {"start": "YYYY-MM-DD", "end": "YYYY-MM-DD"},
-    "units_consumed": 0,
-  "sanctioned_load_kw": 0,
-  "charges": {"energy": 0, "fixed": 0, "surcharges": 0, "other": 0, "total": 0},
-  "missing_fields": []
+  "discom": "BRPL",
+  "category": "Domestic",
+  "effective_date": "YYYY-MM-DD",
+  "energy_slabs": [{"from_units": 0, "to_units": 200, "rate_per_unit": 0}],
+  "fixed_charge": [{"from_kw": 0, "to_kw": 2, "rate_per_kw_per_month": 0}],
+  "surcharges": [{"name": "", "type": "percent_of_energy_plus_fixed", "value": 0, "effective_date": ""}],
+  "fppas_by_month": [{"month": "YYYY-MM", "percent": 0, "source_url": ""}],
+  "source_url": "",
+  "other_sources": [{"component": "", "url": ""}],
+  "uncertainties": [],
+  "retrieved_at": ""
 }
 ```
 
