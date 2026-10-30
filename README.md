@@ -102,7 +102,9 @@ Telegram integration.
 
 1. Push this repository to GitHub and import it from the Vercel dashboard.
 2. In **Settings → Environment Variables**, add `GEMINI_API_KEY` for Production,
-   Preview, and Development. Do not add it as a `VITE_` variable.
+   Preview, and Development. Do not add it as a `VITE_` variable. The API uses
+   `gemini-2.5-flash` by default; add `GEMINI_MODEL` only when you need to select
+   another Gemini model that supports images and PDFs.
 3. Deploy with Vercel's detected settings: Framework Preset **Vite**, Build Command
    `npm run build`, and Output Directory `dist`.
 4. Open `https://your-project.vercel.app/api/health`. It should return

@@ -1,11 +1,12 @@
 import json
+import os
 
 from dotenv import load_dotenv
 from google import genai
 
 load_dotenv()
 
-MODEL = "gemini-3.8-flash"
+MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash").strip()
 
 
 def build_prompt(audit_result, bill, tariff):

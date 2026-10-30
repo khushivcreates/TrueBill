@@ -29,8 +29,10 @@ log = logging.getLogger("truebill.extractor")
 REPO_ROOT = Path(__file__).resolve().parent.parent
 load_dotenv(REPO_ROOT / ".env")
 
-# Same vision model the engine's explain.py uses.
-MODEL = "gemini-3.8-flash"
+# Gemini 2.5 Flash accepts both images and PDFs and is available to standard
+# Gemini API keys. Deployments can select another compatible model with
+# GEMINI_MODEL without changing code.
+MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash").strip()
 
 # Successful extractions are cached here as <sha256 of file>.json so the
 # same bill never costs a second Gemini call. (Gitignored.)
@@ -200,9 +202,21 @@ def _call_gemini(data: bytes, mime_type: str) -> dict:
 
                 if status == 404:
                     raise ExtractionError(
-                        f"The vision model name '{MODEL}' is invalid (HTTP "
-                        "404). Please ask the admin to set a valid model in "
-                        "bill_extractor.py."
+                        "The configured Gemini model is unavailable. Please ask "
+                        "the admin to set GEMINI_MODEL to a supported vision model."
+                    )
+
+                if status in {401, 403}:
+                    raise ExtractionError(
+                        "The server's Gemini API key is missing, invalid, or "
+                        "doesn't have access to the Gemini API. Please ask the "
+                        "admin to check GEMINI_API_KEY in the deployment settings."
+                    )
+
+                if status == 429:
+                    raise ExtractionError(
+                        "The Gemini API quota has been reached. Please try again "
+                        "later or ask the admin to check the API project's quota."
                     )
 
                 if status in RETRYABLE_STATUSES and attempt < len(RETRY_WAITS_SECONDS):
