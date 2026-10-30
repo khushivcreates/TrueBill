@@ -34,6 +34,17 @@ load_dotenv(REPO_ROOT / ".env")
 # GEMINI_MODEL without changing code.
 MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash").strip()
 
+# When a Google project does not expose the default model, select another
+# capable text-and-vision model advertised by that project's own API key.
+FALLBACK_MODELS = (
+    "gemini-3.8-flash",
+    "gemini-3.6-flash",
+    "gemini-2.5-flash",
+    "gemini-2.5-flash-lite",
+    "gemini-2.0-flash",
+    "gemini-1.5-flash",
+)
+
 # Successful extractions are cached here as <sha256 of file>.json so the
 # same bill never costs a second Gemini call. (Gitignored.)
 EXTRACT_CACHE_DIR = Path(__file__).resolve().parent / "extract_cache"
@@ -155,6 +166,25 @@ def _http_status(exc: Exception) -> int | None:
     return code if isinstance(code, int) else None
 
 
+def _fallback_model(client, current_model: str) -> str | None:
+    """Return an available vision-model fallback for this API key, if any."""
+    try:
+        available = {
+            str(model.name).removeprefix("models/")
+            for model in client.models.list()
+            if getattr(model, "name", None)
+        }
+    except Exception as exc:
+        log.warning("could not list Gemini models: %s", type(exc).__name__)
+        return None
+
+    for candidate in FALLBACK_MODELS:
+        if candidate != current_model and candidate in available:
+            log.info("using available Gemini vision model: %s", candidate)
+            return candidate
+    return None
+
+
 def _call_gemini(data: bytes, mime_type: str) -> dict:
     """Send the file to Gemini vision and return its parsed JSON reply.
 
@@ -177,10 +207,11 @@ def _call_gemini(data: bytes, mime_type: str) -> dict:
         )
 
         response = None
+        active_model = MODEL
         for attempt in range(len(RETRY_WAITS_SECONDS) + 1):
             try:
                 response = client.models.generate_content(
-                    model=MODEL,
+                    model=active_model,
                     contents=[
                         types.Part.from_bytes(data=data, mime_type=mime_type),
                         PROMPT,
@@ -201,9 +232,14 @@ def _call_gemini(data: bytes, mime_type: str) -> dict:
                 )
 
                 if status == 404:
+                    fallback = _fallback_model(client, active_model)
+                    if fallback is not None:
+                        active_model = fallback
+                        continue
                     raise ExtractionError(
-                        "The configured Gemini model is unavailable. Please ask "
-                        "the admin to set GEMINI_MODEL to a supported vision model."
+                        "This Gemini API key does not have access to a supported "
+                        "vision model. Please ask the admin to check the Gemini "
+                        "project's model access."
                     )
 
                 if status in {401, 403}:
