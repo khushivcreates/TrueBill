@@ -1,0 +1,12 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/index.py" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ],
+  "functions": {
+    "api/index.py": {
+      "excludeFiles": "{bot/test_*.py,engine/test_*.py,engine/samples/**,retrieval/tariff.py}"
+    }
+  }
+}

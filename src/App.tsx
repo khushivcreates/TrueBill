@@ -23,8 +23,10 @@ import {
    API CONFIGURATION
    Change these constants or use the UI settings to test your custom backend.
    ========================================================================= */
-const API_URL = "http://localhost:8000";
-const USE_MOCK = true;
+// In production the Vercel Function is served from this same origin.  A
+// separate API can be selected with VITE_API_URL when required.
+const API_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, "") || "";
+const USE_MOCK = import.meta.env.VITE_DEMO_MODE === "true";
 
 /* =========================================================================
    DATA TYPES & INTERFACES
@@ -122,7 +124,7 @@ async function auditElectricityBill(
   const formData = new FormData();
   formData.append("file", file);
 
-  const endpoint = `${apiUrl.replace(/\/$/, '')}/process`;
+  const endpoint = `${apiUrl.replace(/\/$/, '')}/api/process`;
   
   const response = await fetch(endpoint, {
     method: "POST",
@@ -133,7 +135,9 @@ async function auditElectricityBill(
     let errorMsg = `Server error (${response.status})`;
     try {
       const errData = await response.json();
-      if (errData && errData.message) errorMsg = errData.message;
+      if (errData && (errData.detail || errData.message || errData.error)) {
+        errorMsg = errData.detail || errData.message || errData.error;
+      }
     } catch {
       // fallback
     }
@@ -403,12 +407,12 @@ export default function App() {
                     onChange={(e) => setCurrentApiUrl(e.target.value)}
                     disabled={currentUseMock}
                     className="w-full bg-[#0B1822] border border-[#EFEAE0]/20 rounded px-2.5 py-1.5 text-[#EFEAE0] focus:border-[#F0A818] focus:outline-none disabled:opacity-50"
-                    placeholder="http://localhost:8000"
+                    placeholder="https://your-api.example.com"
                   />
                 </div>
               </div>
               <p className="text-[11px] text-[#EFEAE0]/50 pt-1">
-                Post request to <code className="text-[#F0A818]">{currentApiUrl}/process</code> with multipart/form-data <code className="text-[#F0A818]">file</code> field.
+                Post request to <code className="text-[#F0A818]">{currentApiUrl || window.location.origin}/api/process</code> with multipart/form-data <code className="text-[#F0A818]">file</code> field.
               </p>
             </div>
           </div>

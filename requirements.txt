@@ -1,0 +1,4 @@
+fastapi==0.128.0
+python-multipart==0.0.20
+google-genai==2.31.0
+python-dotenv==1.0.1

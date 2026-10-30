@@ -93,6 +93,27 @@ Every audit names its tariff source, the tariff's effective date, and its uncert
 
 **Requirements:** Python 3.11 or newer, and API keys for Telegram (from @BotFather), Google Gemini (AI Studio) and TinyFish (agent.tinyfish.ai/api-keys).
 
+## Deploy the web app on Vercel
+
+The Vercel deployment includes the React web app and a serverless `POST /api/process`
+endpoint. It uses `GEMINI_API_KEY` privately on the server to read a submitted
+bill, then runs the included deterministic audit engine. The Telegram bot is a
+long-running process, so keep it on a separate always-on host if you need the
+Telegram integration.
+
+1. Push this repository to GitHub and import it from the Vercel dashboard.
+2. In **Settings → Environment Variables**, add `GEMINI_API_KEY` for Production,
+   Preview, and Development. Do not add it as a `VITE_` variable.
+3. Deploy with Vercel's detected settings: Framework Preset **Vite**, Build Command
+   `npm run build`, and Output Directory `dist`.
+4. Open `https://your-project.vercel.app/api/health`. It should return
+   `{"status":"ok"}`. Then upload a BRPL Domestic JPG, PNG, or PDF in the site.
+5. For a preview without API calls, add `VITE_DEMO_MODE=true` and redeploy.
+
+See Vercel's [Vite deployment guide](https://vercel.com/docs/frameworks/frontend/vite)
+and [FastAPI guide](https://vercel.com/docs/frameworks/backend/fastapi) for the
+current platform settings.
+
 **1. Install**
 ```bash
 git clone https://github.com/khushivcreates/TrueBill.git
