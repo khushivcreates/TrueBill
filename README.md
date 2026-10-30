@@ -21,13 +21,12 @@ TrueBill is an AI electricity-bill auditor. A user sends a bill (photo or PDF) t
 | **2. Use the live bot** | Telegram | 1 min |
 | **3. Run it yourself** | Python 3.11+, three API keys | 10 min |
 
-**1. Demo video:** [ADD DEMO VIDEO LINK HERE]
 
-**2. Live bot:** [@MyHackathonHelperbot](https://t.me/MyHackathonHelperbot)
+**1. Live bot:** [@MyHackathonHelperbot](https://t.me/MyHackathonHelperbot)
 The bot and the audit API run on the team's own machines, so the bot answers only while they are running. [ADD THE HOURS THE BOT WILL BE ONLINE, OR "ask us to start it"]. If it does not reply, please use option 1 or 3.
 Send it a **BRPL Domestic bill** (JPG, PNG or PDF) with a **28 to 31 day billing period**. Send one bill and wait up to a minute for the reply.
 
-**3. Run it yourself:** see [Run it locally](#run-it-locally).
+**2. Run it yourself:** see [Run it locally](#run-it-locally).
 
 ---
 
